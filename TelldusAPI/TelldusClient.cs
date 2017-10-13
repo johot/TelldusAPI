@@ -1,17 +1,22 @@
 using System;
 using System.Collections.Generic;
+using System.Net.Http;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using TinyOAuth1;
-using System.Net.Http;
 
 namespace TelldusAPI
 {
-	public class TelldusClient //: ITelldusClient
+	public class TelldusClient : ITelldusClient
 	{
+		private readonly TinyOAuthConfig _config;
+		private readonly TinyOAuth _tinyOAuth;
+		private HttpClient _httpClient;
+		private RequestTokenInfo _requestTokenInfo;
+
 		public TelldusClient(string consumerKey, string consumerSecret)
 		{
-			_config = new TinyOAuthConfig()
+			_config = new TinyOAuthConfig
 			{
 				AccessTokenUrl = "https://api.telldus.com/oauth/accessToken",
 				AuthorizeTokenUrl = "https://api.telldus.com/oauth/authorize",
@@ -42,12 +47,29 @@ namespace TelldusAPI
 
 			return accessTokenInfo;
 		}
-		
-		public async Task<Response> TurnOffAsync(Device device)
+
+		public async Task<IList<Device>> GetDevicesAsync()
+		{
+			CheckIsAuthorized();
+
+			var requestUri = "http://api.telldus.com/json/devices/list";
+
+			var resp = await _httpClient.GetAsync(requestUri);
+			var respJson = await resp.Content.ReadAsStringAsync();
+
+			var devicesRoot = JsonConvert.DeserializeObject<Devices>(respJson);
+
+			foreach (var device in devicesRoot.Device)
+				device.TelldusClient = this;
+
+			return devicesRoot.Device;
+		}
+
+		internal async Task<Response> TurnOffAsync(Device device)
 		{
 			var requestUri = "http://api.telldus.com/json/device/turnOff?id=" + device.Id;
 
-			var data = ""; //await _oAuthClient.GetData(requestUri);
+			var data = await _httpClient.GetStringAsync(requestUri);
 
 			var response = JsonConvert.DeserializeObject<Response>(data);
 
@@ -55,70 +77,40 @@ namespace TelldusAPI
 		}
 
 		/// <summary>
-		/// Dim amount should be a value between 0.0d and 1.0d.
+		///     Dim amount should be a value between 0.0d and 1.0d.
 		/// </summary>
 		/// <param name="device"></param>
 		/// <param name="dimAmount"></param>
 		/// <returns></returns>
-		public async Task<Response> DimAsync(Device device, double dimAmount)
+		internal async Task<Response> DimAsync(Device device, double dimAmount)
 		{
-			int level = (int)(255.0d * dimAmount);
+			var level = (int) (255.0d * dimAmount);
 
 			var requestUri = "http://api.telldus.com/json/device/dim?id=" + device.Id + "&level=" + level;
 
-			var data = ""; //await _oAuthClient.GetData(requestUri);
+			var data = await _httpClient.GetStringAsync(requestUri);
 
 			var response = JsonConvert.DeserializeObject<Response>(data);
 
 			return response;
 		}
 
-		public async Task<Response> TurnOn(Device device)
+		internal async Task<Response> TurnOnAsync(Device device)
 		{
 			var requestUri = "http://api.telldus.com/json/device/turnOn?id=" + device.Id;
 
-			var data = ""; //await _oAuthClient.GetData(requestUri);
+			var data = await _httpClient.GetStringAsync(requestUri);
 
 			var response = JsonConvert.DeserializeObject<Response>(data);
 
 			return response;
-		}
-
-		//private IList<Device> _cachedDevices = null;
-		private TinyOAuthConfig _config;
-		private TinyOAuth _tinyOAuth;
-		private RequestTokenInfo _requestTokenInfo;
-		private HttpClient _httpClient;
-
-		public async Task<IList<Device>> GetDevicesAsync()
-		{
-			CheckIsAuthorized();
-			//if (_cachedDevices == null)
-			//{
-				var requestUri = "http://api.telldus.com/json/devices/list";
-
-				var resp = await _httpClient.GetAsync(requestUri);
-				var respJson = await resp.Content.ReadAsStringAsync();
-
-				var devicesRoot = JsonConvert.DeserializeObject<Devices>(respJson);
-				
-				return devicesRoot.Device;
-			//}
-			//else
-			//{
-			//	return _cachedDevices;
-			//}
 		}
 
 		private void CheckIsAuthorized()
 		{
 			if (_httpClient == null)
-				throw new Exception("You need to perform authorization by calling the Authorize method (with your obtained access tokens) first. If you do not have your access tokens you need to call GetAuthorizationUrlAsync() followed by FinalizeAuthorizationAsync().");
+				throw new Exception(
+					"You need to perform authorization by calling the Authorize method (with your obtained access tokens) first. If you do not have your access tokens you need to call GetAuthorizationUrlAsync() followed by FinalizeAuthorizationAsync().");
 		}
-
-		//public void LoginAsNewUser()
-		//{
-		//}
-
 	}
 }

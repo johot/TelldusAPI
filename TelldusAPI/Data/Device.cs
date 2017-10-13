@@ -1,13 +1,16 @@
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace TelldusAPI
 {
     public class Device
     {
-        public string Id { get; set; }
+	    internal TelldusClient TelldusClient { get; set; }
+
+	    public string Id { get; set; }
         public string ClientDeviceId { get; set; }
         public string Name { get; set; }
-        public int state { get; set; }
+        public int State { get; set; }
         public string StateValue { get; set; }
         public int Methods { get; set; }
         public string Type { get; set; }
@@ -17,6 +20,21 @@ namespace TelldusAPI
         public int Editable { get; set; }
         public int Ignored { get; set; }
         public string Devices { get; set; }
+
+		public async Task TurnOffAsync()
+		{
+			await TelldusClient.TurnOffAsync(this);
+		}
+
+	    public async Task TurnOnAsync()
+	    {
+		    await TelldusClient.TurnOnAsync(this);
+		}
+
+	    public async Task DimAsync(double dimAmount)
+	    {
+		    await TelldusClient.DimAsync(this, dimAmount);
+	    }
 
 		public override string ToString()
 		{
