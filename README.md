@@ -1,5 +1,6 @@
 # Telldus API
-A simple .NET Framework + .NET Core (by using .NET standard) library for controlling your Telldus TellStick (smart home controller) via the Telldus Live! API.
+A simple .NET Framework + .NET Core (using .NET standard) library for controlling your smart home via the Telldus Live! API and a Telldus TellStick. Turn lights on, off, dim them and so on.
+
 
 _This is an early version that can turn lights on, off and dim them. More functions might be added in the future if people are interested in this library, let me know_ 😊 _(or do a pull request)._
 

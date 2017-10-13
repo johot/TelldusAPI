@@ -30,7 +30,7 @@ namespace TelldusAPI
 
 		public async Task<string> GetAuthorizationUrlAsync()
 		{
-			_requestTokenInfo = await _tinyOAuth.GetRequestToken();
+			_requestTokenInfo = await _tinyOAuth.GetRequestTokenAsync();
 			var authorizationUrl = _tinyOAuth.GetAuthorizationUrl(_requestTokenInfo.RequestToken);
 
 			return authorizationUrl;
@@ -43,7 +43,7 @@ namespace TelldusAPI
 
 		public async Task<AccessTokenInfo> FinalizeAuthorizationAsync()
 		{
-			var accessTokenInfo = await _tinyOAuth.GetAccessToken(_requestTokenInfo.RequestToken, _requestTokenInfo.RequestTokenSecret, "");
+			var accessTokenInfo = await _tinyOAuth.GetAccessTokenAsync(_requestTokenInfo.RequestToken, _requestTokenInfo.RequestTokenSecret, "");
 
 			return accessTokenInfo;
 		}

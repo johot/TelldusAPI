@@ -6,7 +6,8 @@
     <FileVersion>0.1.0.0</FileVersion>
     <Version>0.1.0</Version>
     <Authors>Johan Otterud</Authors>
-    <Description>A simple .NET Framework + .NET Core (by using .NET standard) library for controlling your Telldus Tellstick via the Telldus Live! API.</Description>
+    <Description>A simple .NET Framework + .NET Core (using .NET standard) library for controlling your smart home via the Telldus Live! API and a Telldus TellStick. Turn lights on, off, dim them and so on.
+</Description>
     <Copyright>2017 © Johan Otterud</Copyright>
     <PackageLicenseUrl>https://raw.githubusercontent.com/johot/TelldusAPI/master/LICENSE</PackageLicenseUrl>
     <PackageProjectUrl>https://github.com/johot/TelldusAPI</PackageProjectUrl>
@@ -16,7 +17,7 @@
 
   <ItemGroup>
     <PackageReference Include="Newtonsoft.Json" Version="10.0.3" />
-    <PackageReference Include="TinyOAuth1" Version="1.0.0" />
+    <PackageReference Include="TinyOAuth1" Version="1.1.0" />
   </ItemGroup>
 
 </Project>
