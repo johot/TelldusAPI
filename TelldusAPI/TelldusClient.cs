@@ -59,15 +59,12 @@ namespace TelldusAPI
 
 			var devicesRoot = JsonConvert.DeserializeObject<Devices>(respJson);
 
-			foreach (var device in devicesRoot.Device)
-				device.TelldusClient = this;
-
 			return devicesRoot.Device;
 		}
 
-		internal async Task<Response> TurnOffAsync(Device device)
+		public async Task<Response> TurnOffAsync(int deviceId)
 		{
-			var requestUri = "http://api.telldus.com/json/device/turnOff?id=" + device.Id;
+			var requestUri = "http://api.telldus.com/json/device/turnOff?id=" + deviceId;
 
 			var data = await _httpClient.GetStringAsync(requestUri);
 
@@ -82,11 +79,11 @@ namespace TelldusAPI
 		/// <param name="device"></param>
 		/// <param name="dimAmount"></param>
 		/// <returns></returns>
-		internal async Task<Response> DimAsync(Device device, double dimAmount)
+		public async Task<Response> DimAsync(int deviceId, double dimAmount)
 		{
 			var level = (int) (255.0d * dimAmount);
 
-			var requestUri = "http://api.telldus.com/json/device/dim?id=" + device.Id + "&level=" + level;
+			var requestUri = "http://api.telldus.com/json/device/dim?id=" + deviceId + "&level=" + level;
 
 			var data = await _httpClient.GetStringAsync(requestUri);
 
@@ -95,9 +92,9 @@ namespace TelldusAPI
 			return response;
 		}
 
-		internal async Task<Response> TurnOnAsync(Device device)
+		public async Task<Response> TurnOnAsync(int deviceId)
 		{
-			var requestUri = "http://api.telldus.com/json/device/turnOn?id=" + device.Id;
+			var requestUri = "http://api.telldus.com/json/device/turnOn?id=" + deviceId;
 
 			var data = await _httpClient.GetStringAsync(requestUri);
 
@@ -112,5 +109,10 @@ namespace TelldusAPI
 				throw new Exception(
 					"You need to perform authorization by calling the Authorize method (with your obtained access tokens) first. If you do not have your access tokens you need to call GetAuthorizationUrlAsync() followed by FinalizeAuthorizationAsync().");
 		}
+	}
+
+	internal class Devices
+	{
+		public List<Device> Device { get; set; }
 	}
 }

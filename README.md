@@ -51,13 +51,13 @@ var devices = await telldusClient.GetDevicesAsync();
 var firstDevice = devices.First();
 
 // Turn lamp on
-await firstDevice.TurnOnAsync();
+await telldusClient.TurnOnAsync(firstDevice.Id);
 
 // Turn lamp off
-await firstDevice.TurnOffAsync();
+await telldusClient.TurnOffAsync(firstDevice.Id);
 
 // Dim lamp (if available) to 50%
-await firstDevice.DimAsync(0.5);
+await telldusClient.DimAsync(firstDevice.Id, 0.5);
 ```
 
 Thats it, enjoy and let me know if you have any feedback, had use for this library and so on 😄!

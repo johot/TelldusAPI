@@ -5,8 +5,6 @@ namespace TelldusAPI
 {
     public class Device
     {
-	    internal TelldusClient TelldusClient { get; set; }
-
 	    public string Id { get; set; }
         public string ClientDeviceId { get; set; }
         public string Name { get; set; }
@@ -20,30 +18,10 @@ namespace TelldusAPI
         public int Editable { get; set; }
         public int Ignored { get; set; }
         public string Devices { get; set; }
-
-		public async Task TurnOffAsync()
-		{
-			await TelldusClient.TurnOffAsync(this);
-		}
-
-	    public async Task TurnOnAsync()
-	    {
-		    await TelldusClient.TurnOnAsync(this);
-		}
-
-	    public async Task DimAsync(double dimAmount)
-	    {
-		    await TelldusClient.DimAsync(this, dimAmount);
-	    }
-
+		
 		public override string ToString()
 		{
 			return Name;
 		}
 	}
-
-    public class Devices
-    {
-        public List<Device> Device { get; set; }
-    }
 }
