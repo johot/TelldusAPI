@@ -8,6 +8,7 @@ namespace TelldusAPI
 	{
 		Task<string> GetAuthorizationUrlAsync();
 		Task<IList<Device>> GetDevicesAsync();
+        Task<IList<Sensor>> GetSensorsAsync();
 		Task<AccessTokenInfo> FinalizeAuthorizationAsync();
 		void Authorize(string accessToken, string accessTokenSecret);
 		Task<Response> TurnOffAsync(string deviceId);

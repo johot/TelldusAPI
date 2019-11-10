@@ -62,7 +62,21 @@ namespace TelldusAPI
 			return devicesRoot.Device;
 		}
 
-		public async Task<Response> TurnOffAsync(int deviceId)
+        public async Task<IList<Sensor>> GetSensorsAsync()
+        {
+            CheckIsAuthorized();
+
+            var requestUri = "http://api.telldus.com/json/sensors/list?includeValues=1";
+
+            var resp = await _httpClient.GetAsync(requestUri);
+            var respJson = await resp.Content.ReadAsStringAsync();
+
+            var sensorsRoot = JsonConvert.DeserializeObject<Sensors>(respJson);
+
+            return sensorsRoot.Sensor;
+        }
+
+        public async Task<Response> TurnOffAsync(int deviceId)
 		{
 			var requestUri = "http://api.telldus.com/json/device/turnOff?id=" + deviceId;
 
@@ -109,10 +123,30 @@ namespace TelldusAPI
 				throw new Exception(
 					"You need to perform authorization by calling the Authorize method (with your obtained access tokens) first. If you do not have your access tokens you need to call GetAuthorizationUrlAsync() followed by FinalizeAuthorizationAsync().");
 		}
-	}
+
+        public Task<Response> TurnOffAsync(string deviceId)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<Response> DimAsync(string deviceId, double dimAmount)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<Response> TurnOnAsync(string deviceId)
+        {
+            throw new NotImplementedException();
+        }
+    }
 
 	internal class Devices
 	{
 		public List<Device> Device { get; set; }
 	}
+
+    internal class Sensors
+    {
+        public List<Sensor> Sensor { get; set; }
+    }
 }
