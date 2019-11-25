@@ -28,7 +28,7 @@ namespace TelldusAPI
         public bool KeepHistory { get; set; }
      
         [XmlAttribute(AttributeName = "lastUpdated")]
-        public string LastUpdated { get; set; }
+        public long LastUpdated { get; set; }
      
         [XmlAttribute(AttributeName = "miscValues")]
         public string MiscValues { get; set; }
@@ -49,16 +49,16 @@ namespace TelldusAPI
         public int SensorId { get; set; }
      
         [XmlAttribute(AttributeName = "temp")]
-        public string Temp { get; set; }
+        public decimal Temp { get; set; }
      
         [XmlAttribute(AttributeName = "unknown")]
         public string Unknown { get; set; }
      
         [XmlAttribute(AttributeName = "watt")]
-        public string Watt { get; set; }
+        public decimal Watt { get; set; }
     
         [XmlAttribute(AttributeName = "wavg")]
-        public string Wavg { get; set; }
+        public decimal Wavg { get; set; }
     }
 
     [XmlRoot(ElementName = "sensors")]
