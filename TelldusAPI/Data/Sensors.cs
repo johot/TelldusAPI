@@ -59,6 +59,9 @@ namespace TelldusAPI
     
         [XmlAttribute(AttributeName = "wavg")]
         public decimal Wavg { get; set; }
+
+        [XmlAttribute(AttributeName = "humidity")]
+        public int Humidity { get; set; }
     }
 
     [XmlRoot(ElementName = "sensors")]
