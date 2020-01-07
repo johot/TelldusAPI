@@ -1,152 +1,78 @@
-using System;
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Threading.Tasks;
-using Newtonsoft.Json;
-using TinyOAuth1;
 
 namespace TelldusAPI
 {
-	public class TelldusClient : ITelldusClient
-	{
-		private readonly TinyOAuthConfig _config;
-		private readonly TinyOAuth _tinyOAuth;
-		private HttpClient _httpClient;
-		private RequestTokenInfo _requestTokenInfo;
+    public interface ITelldusClient
+    {
+        Task<IList<Device>> GetDevicesAsync();
+        Task<IList<Sensor>> GetSensorsAsync();
+        Task<Response> TurnOnAsync(int deviceId);
+        Task<Response> TurnOffAsync(int deviceId);
+        /// <summary>
+        /// Sets the light level
+        /// </summary>
+        /// <param name="deviceId">Uniq id for the device to dim</param>
+        /// <param name="lighLevel">A value between 0.0d and 1.0d</param>
+        /// <returns><see cref="Response"/></returns>
+        Task<Response> DimAsync(int deviceId, double dimAmount);
+    }
 
-		public TelldusClient(string consumerKey, string consumerSecret)
-		{
-			_config = new TinyOAuthConfig
-			{
-				AccessTokenUrl = "https://api.telldus.com/oauth/accessToken",
-				AuthorizeTokenUrl = "https://api.telldus.com/oauth/authorize",
-				RequestTokenUrl = "https://api.telldus.com/oauth/requestToken",
-				ConsumerKey = consumerKey,
-				ConsumerSecret = consumerSecret
-			};
+    public class TelldusClient : ITelldusClient
+    {
+        private readonly HttpClient httpClient;
+        private readonly string path = "http://api.telldus.com";
+        private readonly IHttpClientInterpretationStrategy interpretationStrategy;
 
-			_tinyOAuth = new TinyOAuth(_config);
-		}
+        public TelldusClient(HttpClient httpClient, IHttpClientInterpretationStrategy interpretationStrategy)
+        {
+            this.httpClient = httpClient;
+            this.interpretationStrategy = interpretationStrategy;
+        }
 
-		public async Task<string> GetAuthorizationUrlAsync()
-		{
-			_requestTokenInfo = await _tinyOAuth.GetRequestTokenAsync();
-			var authorizationUrl = _tinyOAuth.GetAuthorizationUrl(_requestTokenInfo.RequestToken);
-
-			return authorizationUrl;
-		}
-
-		public void Authorize(string accessToken, string accessTokenSecret)
-		{
-			_httpClient = new HttpClient(new TinyOAuthMessageHandler(_config, accessToken, accessTokenSecret));
-		}
-
-		public async Task<AccessTokenInfo> FinalizeAuthorizationAsync()
-		{
-			var accessTokenInfo = await _tinyOAuth.GetAccessTokenAsync(_requestTokenInfo.RequestToken, _requestTokenInfo.RequestTokenSecret, "");
-
-			return accessTokenInfo;
-		}
-
-		public async Task<IList<Device>> GetDevicesAsync()
-		{
-			CheckIsAuthorized();
-
-			var requestUri = "http://api.telldus.com/json/devices/list";
-
-			var resp = await _httpClient.GetAsync(requestUri);
-			var respJson = await resp.Content.ReadAsStringAsync();
-
-			var devicesRoot = JsonConvert.DeserializeObject<Devices>(respJson);
-
-			return devicesRoot.Device;
-		}
+        public async Task<IList<Device>> GetDevicesAsync()
+        {
+            var requestUri = $"{path}/{interpretationStrategy.ResponseType}/devices/list";
+            var response = await httpClient.GetAsync(requestUri);
+            var content = await response.Content.ReadAsStringAsync();
+            return interpretationStrategy.DeserializeObject<Devices>(content).Device;
+        }
 
         public async Task<IList<Sensor>> GetSensorsAsync()
         {
-            CheckIsAuthorized();
+            var requestUri = $"{path}/{interpretationStrategy.ResponseType}/sensors/list?includeValues=1";
+            var response = await httpClient.GetAsync(requestUri);
+            var content = await response.Content.ReadAsStringAsync();
+            return interpretationStrategy.DeserializeObject<Sensors>(content).Sensor;
+        }
 
-            var requestUri = "http://api.telldus.com/json/sensors/list?includeValues=1";
-
-            var resp = await _httpClient.GetAsync(requestUri);
-            var respJson = await resp.Content.ReadAsStringAsync();
-
-            var sensorsRoot = JsonConvert.DeserializeObject<Sensors>(respJson);
-
-            return sensorsRoot.Sensor;
+        public async Task<Response> TurnOnAsync(int deviceId)
+        {
+            var requestUri = $"{path}/{interpretationStrategy.ResponseType}/device/turnOn?id={deviceId}";
+            var content = await httpClient.GetStringAsync(requestUri);
+            return interpretationStrategy.DeserializeObject<Response>(content);
         }
 
         public async Task<Response> TurnOffAsync(int deviceId)
-		{
-			var requestUri = "http://api.telldus.com/json/device/turnOff?id=" + deviceId;
-
-			var data = await _httpClient.GetStringAsync(requestUri);
-
-			var response = JsonConvert.DeserializeObject<Response>(data);
-
-			return response;
-		}
-
-		/// <summary>
-		///     Dim amount should be a value between 0.0d and 1.0d.
-		/// </summary>
-		/// <param name="device"></param>
-		/// <param name="dimAmount"></param>
-		/// <returns></returns>
-		public async Task<Response> DimAsync(int deviceId, double dimAmount)
-		{
-			var level = (int) (255.0d * dimAmount);
-
-			var requestUri = "http://api.telldus.com/json/device/dim?id=" + deviceId + "&level=" + level;
-
-			var data = await _httpClient.GetStringAsync(requestUri);
-
-			var response = JsonConvert.DeserializeObject<Response>(data);
-
-			return response;
-		}
-
-		public async Task<Response> TurnOnAsync(int deviceId)
-		{
-			var requestUri = "http://api.telldus.com/json/device/turnOn?id=" + deviceId;
-
-			var data = await _httpClient.GetStringAsync(requestUri);
-
-			var response = JsonConvert.DeserializeObject<Response>(data);
-
-			return response;
-		}
-
-		private void CheckIsAuthorized()
-		{
-			if (_httpClient == null)
-				throw new Exception(
-					"You need to perform authorization by calling the Authorize method (with your obtained access tokens) first. If you do not have your access tokens you need to call GetAuthorizationUrlAsync() followed by FinalizeAuthorizationAsync().");
-		}
-
-        public Task<Response> TurnOffAsync(string deviceId)
         {
-            throw new NotImplementedException();
+            var requestUri = $"{path}/{interpretationStrategy.ResponseType}/device/turnOff?id={deviceId}";
+            string content = await httpClient.GetStringAsync(requestUri);
+            return interpretationStrategy.DeserializeObject<Response>(content);
         }
 
-        public Task<Response> DimAsync(string deviceId, double dimAmount)
+        /// <summary>
+        /// Sets the light level
+        /// </summary>
+        /// <param name="deviceId">Uniq id for the device to dim</param>
+        /// <param name="lighLevel">A value between 0.0d and 1.0d</param>
+        /// <returns><see cref="Response"/></returns>
+        public async Task<Response> DimAsync(int deviceId, double lighLevel)
         {
-            throw new NotImplementedException();
+            var level = (int)(255.0d * lighLevel);
+            var requestUri = $"{path}/{interpretationStrategy.ResponseType}/device/dim?id={deviceId}&level={level}";
+            var content = await httpClient.GetStringAsync(requestUri);
+            return interpretationStrategy.DeserializeObject<Response>(content);
         }
-
-        public Task<Response> TurnOnAsync(string deviceId)
-        {
-            throw new NotImplementedException();
-        }
-    }
-
-	internal class Devices
-	{
-		public List<Device> Device { get; set; }
-	}
-
-    internal class Sensors
-    {
-        public List<Sensor> Sensor { get; set; }
     }
 }
