@@ -13,10 +13,11 @@ namespace TelldusAPI
             this.tinyOAuth = tinyOAuth;
         }
 
-        public async Task<string> GetAuthorizationUrlAsync()
+        public async Task<bool> InitiateAuthorizationAsync()
         {
             requestTokenInfo = await tinyOAuth.GetRequestTokenAsync();
-            return tinyOAuth.GetAuthorizationUrl(requestTokenInfo.RequestToken);
+            var url = tinyOAuth.GetAuthorizationUrl(requestTokenInfo.RequestToken);
+            return true;
         }
 
         public async Task<AccessTokenInfo> FinalizeAuthorizationAsync()
