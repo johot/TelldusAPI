@@ -14,7 +14,7 @@ namespace TelldusAPI
 
         public string ResponseType => "json";
 
-        public T DeserializeObject<T>(string response) where T : class
+        public T DeserializeObject<T>(string response)
         {
             try
             {

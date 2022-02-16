@@ -4,7 +4,7 @@
     {
         public string ResponseType => "xml";
 
-        public T DeserializeObject<T>(string response) where T : class
+        public T DeserializeObject<T>(string response)
         {
             return XmlConvert.DeserializeObject<T>(response);
         }

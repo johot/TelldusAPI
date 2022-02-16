@@ -63,7 +63,7 @@ namespace TelldusAPI
     }
 
     [XmlRoot(ElementName = "devices")]
-    public class Devices
+    public class DeviceContainer
     {
         [XmlElement(ElementName = "device")]
         public List<Device> Device { get; set; }

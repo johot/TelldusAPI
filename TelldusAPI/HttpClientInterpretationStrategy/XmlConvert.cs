@@ -5,7 +5,7 @@ namespace TelldusAPI
 {
     public static class XmlConvert
     {
-        public static T DeserializeObject<T>(string input) where T : class
+        public static T DeserializeObject<T>(string input)
         {
             var xmlSerializer = new XmlSerializer(typeof(T));
             using (var stringReader = new StringReader(input))

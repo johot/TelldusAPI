@@ -4,6 +4,6 @@
     {
         string ResponseType { get; }
 
-        T DeserializeObject<T>(string response) where T : class;
+        T DeserializeObject<T>(string response);
     }
 }

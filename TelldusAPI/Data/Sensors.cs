@@ -65,7 +65,7 @@ namespace TelldusAPI
     }
 
     [XmlRoot(ElementName = "sensors")]
-    public class Sensors
+    public class SensorContainer
     {
         [XmlElement(ElementName = "sensor")]
         public List<Sensor> Sensor { get; set; }
