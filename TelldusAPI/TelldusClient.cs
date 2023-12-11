@@ -21,7 +21,7 @@ namespace TelldusAPI
     public class TelldusClient : ITelldusClient
     {
         private readonly IHttpClient httpClient;
-        private readonly string path = "http://api.telldus.com";
+        private readonly string path = "http://pa-api.telldus.com";
         private readonly IHttpClientInterpretationStrategy interpretationStrategy;
 
         public TelldusClient(IHttpClient httpClient, IHttpClientInterpretationStrategy interpretationStrategy)
